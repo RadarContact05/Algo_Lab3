@@ -40,13 +40,32 @@ public class Trader extends Thread{
           OBS: you should extend the file, not override
           what is already there.
       */
+
+      int size = stockPicks.size();
+      StockPick[] picks = new StockPick[size];
+      for (int i = 0; i < size; i++) {
+        picks[i] = stockPicks.dequeue();
+      }
+      MaxPQ<StockPick> pq = new MaxPQ<>(picks);
+      
+      try {
+        Writer dataOut = new OutputStreamWriter(
+          new FileOutputStream("log.txt", true));
+        for (int i = 0; i < nrPicks && !pq.isEmpty(); i++) {
+          StockPick best = pq.delMax();
+          dataOut.append(best.toString()).append("\n");
+        }
+        dataOut.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+   }
+
       time++;
       System.out.println("Time elapsed: "
                          + time
                          + " seconds.");
       }
-   }
-
 
     public static void main(String[] cmdLn){
         int bufferSize = 50;
