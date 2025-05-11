@@ -41,23 +41,31 @@ public class Trader extends Thread{
           what is already there.
       */
 
+     StockPick[] picks;
+     synchronized (stockPicks) {
+      // Move all picks out of the buffer into an array
       int size = stockPicks.size();
-      StockPick[] picks = new StockPick[size];
+      picks = new StockPick[size];
       for (int i = 0; i < size; i++) {
-        picks[i] = stockPicks.dequeue();
+          picks[i] = stockPicks.dequeue();
       }
+
+     }
+      // Build a max‐heap from that array
       MaxPQ<StockPick> pq = new MaxPQ<>(picks);
-      
+
       try {
-        Writer dataOut = new OutputStreamWriter(
-          new FileOutputStream("log.txt", true));
-        for (int i = 0; i < nrPicks && !pq.isEmpty(); i++) {
-          StockPick best = pq.delMax();
-          dataOut.append(best.toString()).append("\n");
-        }
-        dataOut.close();
+          Writer out = new OutputStreamWriter(
+              new FileOutputStream("log.txt", true)
+          );
+          // Take the top nrPicks items and write them
+          for (int i = 0; i < nrPicks && !pq.isEmpty(); i++) {
+              StockPick best = pq.delMax();
+              out.append(best.toString()).append("\n");
+          }
+          out.close();
       } catch (IOException e) {
-        e.printStackTrace();
+          e.printStackTrace();
       }
    }
 
